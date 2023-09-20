@@ -16,7 +16,7 @@ function asc(array: number[]): void {
     array.sort((a, b) => a - b);
 }
 
-function quantile(sorted: number[], q: number): number {
+export function quantile(sorted: number[], q: number): number {
     const pos = (sorted.length - 1) * q;
     const base = Math.floor(pos);
     const rest = pos - base;
@@ -27,21 +27,26 @@ function quantile(sorted: number[], q: number): number {
     }
 }
 
-
-export function montecarlo(history: FinishedTask[], scope: Task[], iterations: number = 1000): SimulationResult {
+export function weightSpecFromHistory(history: FinishedTask[]): WeightedRandomSpecification {
     const weightSpec: WeightedRandomSpecification = {};
     for (const issue of history) {
-        weightSpec[issue.estimation] = weightSpec[issue.estimation] || {};
-        weightSpec[issue.estimation][issue.duration] = weightSpec[issue.estimation][issue.duration] || 0;
-        weightSpec[issue.estimation][issue.duration]++;
+        weightSpec[issue.estimation] = weightSpec[issue.estimation] || [];
+        weightSpec[issue.estimation].push(issue.duration);
     }
 
-    const random = weightedRandom(weightSpec);
+    return weightSpec;
+}
+
+export function montecarlo(history: FinishedTask[], scope: Task[], iterations: number = 1000, parallel: number = 1): SimulationResult {
+    const random = weightedRandom(weightSpecFromHistory(history));
 
     const results = [];
     for (let i = 0; i < iterations; i++) {
-        const backlogEstimation = scope.reduce((a, b) => a + random(b.estimation), 0);
-        results.push(backlogEstimation);
+        const backlogEstimation = scope.reduce((a, b) => {
+            return a + random(b.estimation);
+        }, 0);
+
+        results.push(Math.max(1, Math.ceil(backlogEstimation / parallel)));
     }
 
     asc(results);

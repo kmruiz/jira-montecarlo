@@ -1,10 +1,9 @@
 const DAYS_PER_POINT = 3;
 
 export type WeightedRandomSpecification = {
-    [estimation: number]: { 
-        [daysSpent: number]: number
-    }
+    [estimation: number]: number[]
 }
+
 export function weightedRandom(spec: WeightedRandomSpecification): (estimation: number) => number {
     let tablePerSpec: { [estimation: number]: number[] } = {};
     for (const [estimation, estimationSpec ] of Object.entries(spec)) {
