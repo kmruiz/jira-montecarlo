@@ -144,6 +144,26 @@ switch (cliArgs.action) {
 
         console.log('📊 Task deviation by story points (lower better):');
         console.log(deviationTable.toString());
+
+        const outlierData = [];
+
+        for (const [ estimation, days ] of Object.entries(weightSpec)) {
+            const outlierThreshold = quantile(days, 0.95);
+            for (const task of history) {
+                if (task.estimation === +estimation && task.duration > outlierThreshold) {
+                    outlierData.push([ task.taskId, task.estimation, task.duration ])
+                }
+            }
+        }
+
+        const outlierTable = new Table({
+            head: [ 'Task Id', 'Story Points', 'Duration'],
+            rows: outlierData
+        });
+
+        console.log('📊 Outlier tasks:');
+        console.log(outlierTable.toString());
+
         
     } break;
 }

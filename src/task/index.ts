@@ -92,7 +92,7 @@ export async function sampleHistoryForProject(project: string[], api: JiraApi): 
         const duration = Math.ceil((endOfTask.getTime() - startOfTask.getTime()) / 1000 / 60 / 60 / 24);
 
         return { taskId, project, duration, estimation };
-    }).filter((maybeTask: FinishedTask | undefined) => maybeTask !== undefined) as FinishedTask[];
+    }).filter((maybeTask: FinishedTask | undefined) => maybeTask !== undefined && maybeTask.duration > 0) as FinishedTask[];
 };
 
 export async function queryScope(epic: string, milestone: string | undefined = undefined, api: JiraApi): Promise<Task[]> {
