@@ -60,7 +60,7 @@ if (!(cliArgs.url && cliArgs.token && cliArgs.projects) || cliArgs.help) {
     console.log('\t\t\t  Before specifying --parallel to the number of developers in the team, please consider blocks and dependencies.')
     console.log("Examples:\n")
     console.log("Estimate if a given milestone in a project can be released before the 30th of October:")
-    console.log(`$> ${Bun.argv[0]} --url='https://my-jira.org/ --token='' --projects=PROJECT --epic=PROJECT-0001 --milestone=milestone-1 --estimate\n`)
+    console.log(`$> ${Bun.argv[0]} --url='https://my-jira.org/ --token='' --projects=PROJECT --epic=PROJECT-0001 --milestone=milestone-1 --estimate --deadline=2023-10-30\n`)
     console.log("Analyse throughput of the team for the last 50 closed tasks.")
     console.log(`$> ${Bun.argv[0]} --url='https://my-jira.org/ --token='' --projects=PROJECT --analyse\n`)
     process.exit(1);
