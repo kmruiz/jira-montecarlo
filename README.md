@@ -1,15 +1,38 @@
 # jira-montecarlo
 
-To install dependencies:
+Playground to implement the Montecarlo simulation for a JIRA backlog. I've just
+implemented this to play a bit with bun and it works only for our setup at MongoDB.
+However, feel free to modify and adapt to your needs.
+
+Right now it can:
+
+* Simulate when the team will finish a specific epic or milestone.
+* Print the simulated scope.
+* Analyse task's duration distribution given the initial estimation in story points.
+* Analyse which tasks are outlier.
+
+## How to start
+
+Install the dependencies with bun:
 
 ```bash
 bun install
 ```
 
-To run:
+Once it's done, run the help command:
 
 ```bash
-bun run src/index.ts
+bun run src/index.ts --help
 ```
 
-This project was created using `bun init` in bun v1.0.2. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+## Releasing
+
+You can generate a binary for your platform using bun:
+
+```bash
+bun run release
+```
+
+## How it looks like
+
+![Example](./docs/img/example.png)
