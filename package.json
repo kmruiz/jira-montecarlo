@@ -2,6 +2,7 @@
   "name": "jira-montecarlo",
   "module": "src/index.ts",
   "type": "module",
+  "version": "0.0.1",
   "scripts": {
     "release": "bun build src/index.ts --minify --compile --outfile build/jira-montecarlo"
   },

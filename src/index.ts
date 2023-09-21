@@ -1,3 +1,4 @@
+import { buildInfo } from './_build/build_info' assert { type: 'macro' };
 import { montecarlo, quantile, weightSpecFromHistory } from "./montecarlo";
 import { DefaultJiraApi, sampleHistoryForProject, queryScope } from "./task";
 import Chartscii, { ChartData } from 'chartscii';
@@ -8,6 +9,8 @@ const DANGEROUS_DEVIATION_IN_DAYS = 10;
 const WARN_DEVIATION_IN_DAYS = 5;
 
 type BaseCliArgs = {
+    help: boolean;
+    version: boolean;
     url: string;
     token: string;
     projects: string;
@@ -35,8 +38,31 @@ const cliArgs: CliArgs = {
     ...parsedCliArgs
 } as unknown as CliArgs;
 
-if (!(cliArgs.url && cliArgs.token && cliArgs.projects)) {
-    console.error('Usage: ');
+if (cliArgs.version) {
+    console.log(buildInfo())
+    process.exit(1);
+}
+if (!(cliArgs.url && cliArgs.token && cliArgs.projects) || cliArgs.help) {
+    console.log(`Usage: ${Bun.argv[0]} --analyze | --estimate\n`);
+    console.log('\tGlobal Options:')
+    console.log('\t\t--url\tURL to the JIRA Server. For example: "https://jira.company.org/".')
+    console.log('\t\t--token\tPersonal authentication token for JIRA.')
+    console.log('\t\t--projects\tList of projects to parse, in a comma-separated list. For example: COMPASS,VSCODE,MONGOSH\n')
+    console.log('\tCommands:')
+    console.log('\t\t--analyze\tPrints a summary of the historical information retrieved.')
+    console.log('\t\t--estimate\tExecutes a statistical estimation in time of a given epic and milestone to be finished.')
+    console.log('\t\t\t--deadline Potential deadline of the deliver in YYYY-MM-DD format. For example: 2023-04-03')
+    console.log('\t\t\t--epic Id of the epic to estimate. For example: COMPASS-0000')
+    console.log('\t\t\t--milestone Optional: Name of the milestone to be estimated. Defaults to the entire epic.')
+    console.log('\t\t\t--iterations Optional: Number of iterations for the simulation. Defaults to 1000.')
+    console.log('\t\t\t--verbose Optional: If specified, will print the list of tasks in the scope.')
+    console.log('\t\t\t--parallel Optional: Estimated number of tasks that can be done in parallel. Defaults to 1.')
+    console.log('\t\t\t  Before specifying --parallel to the number of developers in the team, please consider blocks and dependencies.')
+    console.log("Examples:\n")
+    console.log("Estimate if a given milestone in a project can be released before the 30th of October:")
+    console.log(`$> ${Bun.argv[0]} --url='https://my-jira.org/ --token='' --projects=PROJECT --epic=PROJECT-0001 --milestone=milestone-1 --estimate\n`)
+    console.log("Analyse throughput of the team for the last 50 closed tasks.")
+    console.log(`$> ${Bun.argv[0]} --url='https://my-jira.org/ --token='' --projects=PROJECT --analyse\n`)
     process.exit(1);
 }
 

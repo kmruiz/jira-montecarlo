@@ -1,5 +1,7 @@
 type PaginatedJiraIssues = { issues: JiraIssue[] };
 
+export const MAX_RESULTS_IN_JIRA = '50';
+
 export interface JiraApi {
     searchJira(query: string): Promise<PaginatedJiraIssues>
 }
@@ -20,7 +22,7 @@ export class DefaultJiraApi implements JiraApi {
     }
 
     async searchJira(query: string): Promise<PaginatedJiraIssues> {
-        const queryParams = new URLSearchParams({ jql: query, maxResults: '50', expand: 'project,changelog,customfield_10555', fields: 'key,project,customfield_10555' });
+        const queryParams = new URLSearchParams({ jql: query, maxResults: MAX_RESULTS_IN_JIRA, expand: 'project,changelog,customfield_10555', fields: 'key,project,customfield_10555' });
         const fullUrl = `${this.baseUrl}/rest/api/2/search?` + queryParams;
 
         const response = await fetch(fullUrl + queryParams, {
