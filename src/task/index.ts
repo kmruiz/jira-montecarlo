@@ -98,13 +98,17 @@ export async function sampleHistoryForProject(project: string[], api: JiraApi): 
 };
 
 export async function queryScope(epic: string, milestone: string | undefined = undefined, api: JiraApi): Promise<Task[]> {
-    const jiraSampleIssues = await api.searchJira(`"Epic Link" = '${epic}' ${milestone ? `AND labels = "${milestone}"` : ''} AND status NOT IN ( Closed ) AND type = Task ORDER BY updated DESC`);
+    const jiraSampleIssues = await api.searchJira(`"Epic Link" = '${epic}' ${milestone ? `AND labels = "${milestone}"` : ''} AND status NOT IN ( Closed ) ORDER BY updated DESC`);
+    const allTaskParentTasksIds = jiraSampleIssues.issues.map((issue: JiraIssue) => issue.key).join(", ");
+    const jiraSubTasks = await api.searchJira(`"Parent Link" IN (${allTaskParentTasksIds})`);
 
-    return jiraSampleIssues.issues.map((issue: JiraIssue) => {
+    const allIssues = jiraSampleIssues.issues.concat(jiraSubTasks.issues)
+    return allIssues.map((issue: JiraIssue) => {
         const taskId = issue.key;
         const project = issue.fields.project.key;
-        const estimation = issue.fields.customfield_10555 || 1;
+        const estimation = issue.fields.customfield_10555 || 0;
 
         return { taskId, project, estimation };
-    }).filter((maybeTask: Task | undefined) => maybeTask !== undefined) as Task[];
+    }).filter((maybeTask: Task | undefined) => maybeTask !== undefined)
+        .filter((task: Task) => task.estimation != 0) as Task[];
 };
