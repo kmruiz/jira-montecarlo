@@ -1,6 +1,6 @@
 type PaginatedJiraIssues = { issues: JiraIssue[] };
 
-export const MAX_RESULTS_IN_JIRA = '50';
+export const MAX_RESULTS_IN_JIRA = '25';
 
 export interface JiraApi {
     searchJira(query: string): Promise<PaginatedJiraIssues>
@@ -76,7 +76,7 @@ const FINISHED_STATUSES = ['closed'];
 
 export async function sampleHistoryForProject(project: string[], api: JiraApi): Promise<FinishedTask[]> {
     const jiraSampleIssues = await api.searchJira(`project IN (${project.join(',')}) AND status IN ( Closed ) AND type = Task ORDER BY updated DESC`);
-    return jiraSampleIssues.issues.map((issue: JiraIssue) => {
+    const result = jiraSampleIssues.issues.map((issue: JiraIssue) => {
         const taskId = issue.key;
         const project = issue.fields.project.key;
         const estimation = issue.fields.customfield_10555 || 1;
@@ -95,7 +95,9 @@ export async function sampleHistoryForProject(project: string[], api: JiraApi): 
 
         return { taskId, project, duration, estimation };
     }).filter((maybeTask: FinishedTask | undefined) => maybeTask !== undefined && maybeTask.duration > 0) as FinishedTask[];
-};
+
+    return result
+}
 
 export async function queryScope(epic: string, milestone: string | undefined = undefined, api: JiraApi): Promise<Task[]> {
     const jiraSampleIssues = await api.searchJira(`"Epic Link" = '${epic}' ${milestone ? `AND labels = "${milestone}"` : ''} AND status NOT IN ( Closed ) ORDER BY updated DESC`);

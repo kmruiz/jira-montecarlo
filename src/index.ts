@@ -95,7 +95,9 @@ switch (cliArgs.action) {
 
         for (const [label, value] of Object.entries(result)) {
             const color = value.finishBy > maxDate ? 'red' : 'green';
-            const effort = Math.ceil(value.days * ((+cliArgs.parallel) || 1) / 5);
+            const daysInParallel = value.days / (+cliArgs.parallel || 1);
+            const effort = Math.ceil(daysInParallel / 5);
+
             chartData.push({ label: label + ` in ${value.days} days (${effort} weeks effort) by ${formatDate(value.finishBy)}`, value: value.days, color });
         }
 
