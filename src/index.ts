@@ -1,6 +1,6 @@
 import { buildInfo } from './_build/build_info' assert { type: 'macro' };
 import { montecarlo, quantile, weightSpecFromHistory } from "./montecarlo";
-import { DefaultJiraApi, sampleHistoryForProject, queryScope } from "./task";
+import {DefaultJiraApi, sampleHistoryForProject, queryScope, guessHistory} from "./task";
 import Chartscii, { ChartData } from 'chartscii';
 import minimist from 'minimist';
 import Table from 'cli-table';
@@ -24,6 +24,7 @@ type CliArgs = ({
     iterations: string;
     verbose: boolean;
     parallel: string;
+    "monthly-sp": number;
 } & BaseCliArgs) | ({
     action: 'analyse';
 } & BaseCliArgs);
@@ -42,6 +43,7 @@ if (cliArgs.version) {
     console.log(buildInfo())
     process.exit(1);
 }
+
 if (!(cliArgs.url && cliArgs.token && cliArgs.projects) || cliArgs.help) {
     console.log(`Usage: ${Bun.argv[0]} --analyze | --estimate\n`);
     console.log('\tGlobal Options:')
@@ -57,6 +59,7 @@ if (!(cliArgs.url && cliArgs.token && cliArgs.projects) || cliArgs.help) {
     console.log('\t\t\t--iterations Optional: Number of iterations for the simulation. Defaults to 1000.')
     console.log('\t\t\t--verbose Optional: If specified, will print the list of tasks in the scope.')
     console.log('\t\t\t--parallel Optional: Estimated number of tasks that can be done in parallel. Defaults to 1.')
+    console.log('\t\t\t--monthly-sp Optional: Story points finished this month. If provided, it uses this number for the estimation of the scope. Defaults to empty.')
     console.log('\t\t\t  Before specifying --parallel to the number of developers in the team, please consider blocks and dependencies.')
     console.log("Examples:\n")
     console.log("Estimate if a given milestone in a project can be released before the 30th of October:")
@@ -88,9 +91,9 @@ switch (cliArgs.action) {
             process.exit(1);
         }
 
-
+        const actualHistory = cliArgs["monthly-sp"] !== undefined ? guessHistory(cliArgs["monthly-sp"]) : history;
         const totalPoints = scope.reduce((a, b) => a + b.estimation, 0);
-        const result = montecarlo(history, scope, (+cliArgs.iterations) || 1000, (+cliArgs.parallel) || 1);
+        const result = montecarlo(actualHistory, scope, (+cliArgs.iterations) || 1000, (+cliArgs.parallel) || 1);
         const chartData: ChartData[] = [];
 
         for (const [label, value] of Object.entries(result)) {

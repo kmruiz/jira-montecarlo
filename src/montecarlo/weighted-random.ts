@@ -8,10 +8,12 @@ export function weightedRandom(spec: WeightedRandomSpecification): (estimation: 
     let tablePerSpec: { [estimation: number]: number[] } = {};
     for (const [estimation, estimationSpec ] of Object.entries(spec)) {
         const chances = [];
-        for (const [ daysSpent, times ] of Object.entries(estimationSpec)) {
+        let times = 1;
+        for (const daysSpent of Object.values(estimationSpec)) {
             for (let i = 0; i < times; i++) {
                 chances.push(+daysSpent);
             }
+            times += 1;
         }
 
         tablePerSpec[+estimation] = chances;

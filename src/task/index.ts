@@ -113,4 +113,39 @@ export async function queryScope(epic: string, milestone: string | undefined = u
         return { taskId, project, estimation };
     }).filter((maybeTask: Task | undefined) => maybeTask !== undefined)
         .filter((task: Task) => task.estimation != 0) as Task[];
-};
+}
+
+function fakeTask(estimation: number, duration: number): FinishedTask {
+    return {
+        duration,
+        estimation,
+        project: "FAKE",
+        taskId: `FAKE-${+new Date()}`
+    }
+}
+
+const DISTRIBUTION_OF_SP = {
+    1: 50/100,
+    2: 25/100,
+    3: 10/100,
+    5: 10/100,
+    8: 5 /100
+}
+
+const DAYS_IN_A_MONTH = 30
+
+export function guessHistory(storyPointsInAMonth: number): FinishedTask[] {
+    const result: FinishedTask[] = [];
+
+    for (const [ sp, ratio ] of Object.entries(DISTRIBUTION_OF_SP)) {
+        const numOfTasks = Math.max(1, storyPointsInAMonth * ratio);
+        const numOfDays = DAYS_IN_A_MONTH * (1 - ratio);
+        const daysForTask = numOfDays / numOfTasks
+
+        for (let i = 0; i < numOfTasks; i++) {
+            result.push(fakeTask(+sp, daysForTask));
+        }
+    }
+
+    return result;
+}
